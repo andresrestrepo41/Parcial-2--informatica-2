@@ -32,10 +32,12 @@ public:
                 matriz[i][j] = ' ';
             }
         }
+
         matriz[3][3] = '*';
         matriz[3][4] = '-';
         matriz[4][3] = '-';
         matriz[4][4] = '*';
+
     }
 
     void movimineto_en_tablero(int fila, int columna, char color){
@@ -66,9 +68,9 @@ class Jugador{
 private:
     int puntaje;
     char color;
-    char* nombre;
+    string nombre;
 public:
-    void datos_usuario(char _color,char* _nombre){
+    void datos_usuario(char _color,string _nombre){
         color=_color;
         nombre=_nombre;
         puntaje=0;
@@ -78,7 +80,7 @@ public:
     {
         return color;
     }
-    char* getNombre() const
+    string getNombre() const
     {
         return nombre;
     }
@@ -107,27 +109,31 @@ private:
     Tablero tablero;
 public:
     Juego(){
-        char* nombre_jugador1;
-        char* nombre_jugador2;
-
-        nombre_jugador1=new char[20];
-        nombre_jugador2=new char[20];
-        cout<<"Ingrese nombre del jugador 1: ";cin>>nombre_jugador1;
-        cout<<"Ingrese nombre del jugador 2: ";cin>>nombre_jugador2;
+        string nombre_jugador1;
+        string nombre_jugador2;
+        cout<<"Ingrese nombre del jugador 1: ";getline(cin, nombre_jugador1);
+        cout<<"Ingrese nombre del jugador 2: ";getline(cin, nombre_jugador2);
         jugador1.datos_usuario('-',nombre_jugador1);
         jugador2.datos_usuario('*',nombre_jugador2);
     }
     void turno_del_jugador(Jugador& jugador){
-        int fila,columna;
+        int fila=0;
+        char letra_columna='A';
         jugador.setPuntaje(tablero.getMatriz());
         cout<<"Puntiacion del juegador: ";
         cout<<jugador.getPuntaje();
         cout<<"\nTurno del jugador: "<<jugador.getNombre()<< " ,Ingrese las coordenadas (fila columna): ";
-        cin>>fila>>columna;
+        cin>>fila>>letra_columna;
+        int columna=letra_columna-64;
+        fila--;
+        columna--;
         while(comprobar_jugada_valida(jugador,fila,columna)==false){
             cout<<"\nJugada no valida "<<endl;
             cout<<"\nTurno del jugador: "<<jugador.getNombre()<< " ,Ingrese las coordenadas (fila columna): ";
-            cin>>fila>>columna;
+            cin>>fila>>letra_columna;
+            columna=letra_columna-64;
+            fila--;
+            columna--;
         }
         tablero.movimineto_en_tablero(fila,columna,jugador.getColor());
 
@@ -145,10 +151,12 @@ public:
 
         if(fila >= 1 && fila < 7 && columna >= 1 && columna < 7){
             if (jugador.getColor()=='-'){
+
                     for (int i = -1; i <= 1; i++) {
                         for (int j = -1; j <= 1; j++) {
                             if (tablero.getMatriz()[fila + i][columna + j] == '*') {
-                                return verificacion_linea_sandwich(i,j,fila,columna,jugador.getColor());
+                                if(verificacion_y_llenado_de_linea_sandwich(i,j,fila,columna,jugador.getColor(),jugador)==true)
+                                    return true;
                             }
                         }
                     }
@@ -159,7 +167,8 @@ public:
                     for (int i = -1; i <= 1; i++) {
                         for (int j = -1; j <= 1; j++) {
                             if (tablero.getMatriz()[fila + i][columna + j] == '-') {
-                                return verificacion_linea_sandwich(i,j,fila,columna,jugador.getColor());
+                                if(verificacion_y_llenado_de_linea_sandwich(i,j,fila,columna,jugador.getColor(),jugador)==true)
+                                    return true;
                             }
                         }
                     }
@@ -170,44 +179,49 @@ public:
         return true;
     }
 
-    bool verificacion_linea_sandwich(int i,int j,int fila,int columna,char color){
+    bool verificacion_y_llenado_de_linea_sandwich(int i,int j,int fila,int columna,char color,Jugador& jugador){
         if(i==1 && j==0){//condicion para moverse hacia abajo
                 short int contador_filas=0;
                 while(fila+contador_filas<8){
-                    contador_filas++;
                     if(tablero.getMatriz()[fila+contador_filas][columna]==color && contador_filas>1){
                         return true;
                     }
+                    contador_filas++;
                 }
                 return false;
         }
         if(i==-1 && j==0){//condicion para moverse hacia arriba
                 short int contador_filas=0;
                 while(fila+contador_filas>=0){
-                    contador_filas--;
                     if(tablero.getMatriz()[fila+contador_filas][columna]==color && contador_filas<-1){
                         return true;
                     }
+                    contador_filas--;
                 }
                 return false;
         }
         if(i==0 && j==-1){//condicion para moverse hacia la izquierda
                 short int contador_columnas=0;
                 while(columna+contador_columnas>=0){
-                    contador_columnas--;
                     if(tablero.getMatriz()[fila][columna+contador_columnas]==color && contador_columnas<-1){
-                        return true;
+                        contador_columnas=-1;
+                        while(tablero.getMatriz()[fila][columna+contador_columnas]!=color){
+                            tablero.movimineto_en_tablero(fila,columna+contador_columnas,jugador.getColor());
+                            contador_columnas--;
+                            return true;
+                        }
                     }
+                    contador_columnas--;
                 }
                 return false;
         }
         if(i==0 && j==1){//condicion para moverse hacia la derecha
                 short int contador_columnas=0;
                 while(columna+contador_columnas<8){
-                    contador_columnas++;
                     if(tablero.getMatriz()[fila][columna+contador_columnas]==color && contador_columnas>1){
                         return true;
                     }
+                    contador_columnas++;
                 }
                 return false;
         }
@@ -215,11 +229,11 @@ public:
                 short int contador_fila=0;
                 short int contador_columnas=0;
                 while(columna+contador_columnas<8 && fila+contador_fila<8){
-                    contador_columnas++;
-                    contador_fila++;
                     if(tablero.getMatriz()[fila+contador_fila][columna+contador_columnas]==color && contador_columnas>1){
                         return true;
                     }
+                    contador_columnas++;
+                    contador_fila++;
                 }
                 return false;
         }
@@ -227,11 +241,11 @@ public:
                 short int contador_fila=0;
                 short int contador_columnas=0;
                 while(columna+contador_columnas>=0 && fila+contador_fila<8){
-                    contador_fila++;
-                    contador_columnas--;
                     if(tablero.getMatriz()[fila+contador_fila][columna+contador_columnas]==color && contador_fila>1){
                         return true;
                     }
+                    contador_fila++;
+                    contador_columnas--;
                 }
                 return false;
         }
@@ -239,11 +253,11 @@ public:
                 short int contador_fila=0;
                 short int contador_columnas=0;
                 while(columna+contador_columnas<8 && fila+contador_fila>=0){
-                    contador_fila--;
-                    contador_columnas++;
                     if(tablero.getMatriz()[fila+contador_fila][columna+contador_columnas]==color && contador_columnas>1){
                         return true;
                     }
+                    contador_fila--;
+                    contador_columnas++;
                 }
                 return false;
         }
@@ -251,17 +265,16 @@ public:
                 short int contador_fila=0;
                 short int contador_columnas=0;
                 while(columna+contador_columnas>=0 && fila+contador_fila>=0){
-                    contador_fila--;
-                    contador_columnas--;
                     if(tablero.getMatriz()[fila+contador_fila][columna+contador_columnas]==color && contador_columnas<-1){
                         return true;
                     }
+                    contador_fila--;
+                    contador_columnas--;
                 }
                 return false;
         }
         return false;
     }
-
 
     void iniciar_partida(){
         for(int fichas=0;fichas<=64;fichas++){
