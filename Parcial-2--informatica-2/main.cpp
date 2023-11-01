@@ -149,34 +149,53 @@ public:
             return false;
         }
 
-        if(fila >= 1 && fila < 7 && columna >= 1 && columna < 7){
+        if(fila >= 0 && fila < 8 && columna >= 0 && columna < 8){
             if (jugador.getColor()=='-'){
-
-                    for (int i = -1; i <= 1; i++) {
-                        for (int j = -1; j <= 1; j++) {
+                bool verificador=false;
+                for (int i = -1; i <= 1; i++) {
+                    for (int j = -1; j <= 1; j++) {
+                        if((0 <= fila + i && fila + i < 8) && (0 <= columna + j && columna + j < 8)){
                             if (tablero.getMatriz()[fila + i][columna + j] == '*') {
-                                if(verificacion_y_llenado_de_linea_sandwich(i,j,fila,columna,jugador.getColor(),jugador)==true)
-                                    return true;
+                                if(verificacion_y_llenado_de_linea_sandwich(i,j,fila,columna,jugador.getColor(),jugador)==true){
+                                    verificador=true;
+                                    continue;
+                                }
                             }
                         }
                     }
+                }
+                if(verificador==true){
+                    return true;
+                }
+                else{
                     cout<<"La ficha no cumple la condicion de sandwich"<<endl;
                     return false;
                 }
+            }
             if (jugador.getColor()=='*'){
-                    for (int i = -1; i <= 1; i++) {
-                        for (int j = -1; j <= 1; j++) {
+                bool verificador=false;
+                for (int i = -1; i <= 1; i++) {
+                    for (int j = -1; j <= 1; j++) {
+                        if((0 <= fila + i && fila + i < 8) && (0 <= columna + j && columna + j < 8)){
                             if (tablero.getMatriz()[fila + i][columna + j] == '-') {
-                                if(verificacion_y_llenado_de_linea_sandwich(i,j,fila,columna,jugador.getColor(),jugador)==true)
-                                    return true;
+                                if(verificacion_y_llenado_de_linea_sandwich(i,j,fila,columna,jugador.getColor(),jugador)==true){
+                                    verificador=true;
+                                    continue;
+                                }
                             }
                         }
                     }
+                }
+                if(verificador==true){
+                    return true;
+                }
+                else{
                     cout<<"La ficha no cumple la condicion de sandwich"<<endl;
                     return false;
                 }
+            }
         }
-        return true;
+        return false;
     }
 
     bool verificacion_y_llenado_de_linea_sandwich(int i,int j,int fila,int columna,char color,Jugador& jugador){
@@ -184,6 +203,11 @@ public:
                 short int contador_filas=0;
                 while(fila+contador_filas<8){
                     if(tablero.getMatriz()[fila+contador_filas][columna]==color && contador_filas>1){
+                        contador_filas=1;
+                        while(tablero.getMatriz()[fila+contador_filas][columna]!=color){
+                            tablero.movimineto_en_tablero(fila+contador_filas,columna,jugador.getColor());
+                            contador_filas++;
+                        }
                         return true;
                     }
                     contador_filas++;
@@ -194,6 +218,11 @@ public:
                 short int contador_filas=0;
                 while(fila+contador_filas>=0){
                     if(tablero.getMatriz()[fila+contador_filas][columna]==color && contador_filas<-1){
+                        contador_filas=-1;
+                        while(tablero.getMatriz()[fila+contador_filas][columna]!=color){
+                            tablero.movimineto_en_tablero(fila+contador_filas,columna,jugador.getColor());
+                            contador_filas--;
+                        }
                         return true;
                     }
                     contador_filas--;
@@ -208,8 +237,8 @@ public:
                         while(tablero.getMatriz()[fila][columna+contador_columnas]!=color){
                             tablero.movimineto_en_tablero(fila,columna+contador_columnas,jugador.getColor());
                             contador_columnas--;
-                            return true;
                         }
+                        return true;
                     }
                     contador_columnas--;
                 }
@@ -219,6 +248,11 @@ public:
                 short int contador_columnas=0;
                 while(columna+contador_columnas<8){
                     if(tablero.getMatriz()[fila][columna+contador_columnas]==color && contador_columnas>1){
+                        contador_columnas=1;
+                        while(tablero.getMatriz()[fila][columna+contador_columnas]!=color){
+                            tablero.movimineto_en_tablero(fila,columna+contador_columnas,jugador.getColor());
+                            contador_columnas++;
+                        }
                         return true;
                     }
                     contador_columnas++;
@@ -230,6 +264,13 @@ public:
                 short int contador_columnas=0;
                 while(columna+contador_columnas<8 && fila+contador_fila<8){
                     if(tablero.getMatriz()[fila+contador_fila][columna+contador_columnas]==color && contador_columnas>1){
+                        contador_columnas=1;
+                        contador_fila=1;
+                        while(tablero.getMatriz()[fila+contador_fila][columna+contador_columnas]!=color){
+                            tablero.movimineto_en_tablero(fila+contador_fila,columna+contador_columnas,jugador.getColor());
+                            contador_columnas++;
+                            contador_fila++;
+                        }
                         return true;
                     }
                     contador_columnas++;
@@ -242,6 +283,13 @@ public:
                 short int contador_columnas=0;
                 while(columna+contador_columnas>=0 && fila+contador_fila<8){
                     if(tablero.getMatriz()[fila+contador_fila][columna+contador_columnas]==color && contador_fila>1){
+                        contador_fila=1;
+                        contador_columnas=-1;
+                        while(tablero.getMatriz()[fila+contador_fila][columna+contador_columnas]!=color){
+                            tablero.movimineto_en_tablero(fila+contador_fila,columna+contador_columnas,jugador.getColor());
+                            contador_fila++;
+                            contador_columnas--;
+                        }
                         return true;
                     }
                     contador_fila++;
@@ -254,6 +302,13 @@ public:
                 short int contador_columnas=0;
                 while(columna+contador_columnas<8 && fila+contador_fila>=0){
                     if(tablero.getMatriz()[fila+contador_fila][columna+contador_columnas]==color && contador_columnas>1){
+                        contador_fila=-1;
+                        contador_columnas=1;
+                        while(tablero.getMatriz()[fila+contador_fila][columna+contador_columnas]!=color){
+                            tablero.movimineto_en_tablero(fila+contador_fila,columna+contador_columnas,jugador.getColor());
+                            contador_fila--;
+                            contador_columnas++;
+                        }
                         return true;
                     }
                     contador_fila--;
@@ -266,6 +321,13 @@ public:
                 short int contador_columnas=0;
                 while(columna+contador_columnas>=0 && fila+contador_fila>=0){
                     if(tablero.getMatriz()[fila+contador_fila][columna+contador_columnas]==color && contador_columnas<-1){
+                        contador_fila=-1;
+                        contador_columnas=-1;
+                        while(tablero.getMatriz()[fila+contador_fila][columna+contador_columnas]!=color){
+                            tablero.movimineto_en_tablero(fila+contador_fila,columna+contador_columnas,jugador.getColor());
+                            contador_fila--;
+                            contador_columnas--;
+                        }
                         return true;
                     }
                     contador_fila--;
