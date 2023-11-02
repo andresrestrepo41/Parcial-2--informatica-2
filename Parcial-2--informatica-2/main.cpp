@@ -62,6 +62,14 @@ public:
         }
         delete[] matriz;
     }
+    int getFilas() const
+    {
+        return filas;
+    }
+    int getColumnas() const
+    {
+        return columnas;
+    }
 };
 
 class Jugador{
@@ -127,7 +135,7 @@ public:
         int columna=letra_columna-64;
         fila--;
         columna--;
-        while(comprobar_jugada_valida(jugador,fila,columna)==false){
+        while(comprobar_jugada_valida(jugador,fila,columna,0)==false){
             cout<<"\nJugada no valida "<<endl;
             cout<<"\nTurno del jugador: "<<jugador.getNombre()<< " ,Ingrese las coordenadas (fila columna): ";
             cin>>fila>>letra_columna;
@@ -138,14 +146,13 @@ public:
         tablero.movimineto_en_tablero(fila,columna,jugador.getColor());
 
     }
-    bool comprobar_jugada_valida(Jugador& jugador,int fila,int columna){
+    bool comprobar_jugada_valida(Jugador& jugador,int fila,int columna,int seleccion){
         if ((fila < 0 || fila >= 8) || (columna < 0 || columna >= 8)){
             cout<<"Error, la ficha debe pertenecer al tablero"<<endl;
             return false;
         }
 
         if(tablero.getMatriz()[fila][columna]=='*' || tablero.getMatriz()[fila][columna]=='-'){
-            cout<<"Espacio ocupada por una ficha"<<endl;
             return false;
         }
 
@@ -156,7 +163,7 @@ public:
                     for (int j = -1; j <= 1; j++) {
                         if((0 <= fila + i && fila + i < 8) && (0 <= columna + j && columna + j < 8)){
                             if (tablero.getMatriz()[fila + i][columna + j] == '*') {
-                                if(verificacion_y_llenado_de_linea_sandwich(i,j,fila,columna,jugador.getColor(),jugador)==true){
+                                if(verificacion_y_llenado_de_linea_sandwich(i,j,fila,columna,jugador.getColor(),seleccion)==true){
                                     verificador=true;
                                     continue;
                                 }
@@ -168,7 +175,6 @@ public:
                     return true;
                 }
                 else{
-                    cout<<"La ficha no cumple la condicion de sandwich"<<endl;
                     return false;
                 }
             }
@@ -178,7 +184,7 @@ public:
                     for (int j = -1; j <= 1; j++) {
                         if((0 <= fila + i && fila + i < 8) && (0 <= columna + j && columna + j < 8)){
                             if (tablero.getMatriz()[fila + i][columna + j] == '-') {
-                                if(verificacion_y_llenado_de_linea_sandwich(i,j,fila,columna,jugador.getColor(),jugador)==true){
+                                if(verificacion_y_llenado_de_linea_sandwich(i,j,fila,columna,jugador.getColor(),seleccion)==true){
                                     verificador=true;
                                     continue;
                                 }
@@ -190,7 +196,6 @@ public:
                     return true;
                 }
                 else{
-                    cout<<"La ficha no cumple la condicion de sandwich"<<endl;
                     return false;
                 }
             }
@@ -198,17 +203,21 @@ public:
         return false;
     }
 
-    bool verificacion_y_llenado_de_linea_sandwich(int i,int j,int fila,int columna,char color,Jugador& jugador){
+    bool verificacion_y_llenado_de_linea_sandwich(int i,int j,int fila,int columna,char color,int seleccion){
         if(i==1 && j==0){//condicion para moverse hacia abajo
                 short int contador_filas=0;
                 while(fila+contador_filas<8){
                     if(tablero.getMatriz()[fila+contador_filas][columna]==color && contador_filas>1){
                         contador_filas=1;
+                        if(seleccion==1)return true;
                         while(tablero.getMatriz()[fila+contador_filas][columna]!=color){
-                            tablero.movimineto_en_tablero(fila+contador_filas,columna,jugador.getColor());
+                            tablero.movimineto_en_tablero(fila+contador_filas,columna,color);
                             contador_filas++;
                         }
                         return true;
+                    }
+                    if(tablero.getMatriz()[fila+contador_filas][columna]==' ' && contador_filas>1){
+                        return false;
                     }
                     contador_filas++;
                 }
@@ -219,11 +228,15 @@ public:
                 while(fila+contador_filas>=0){
                     if(tablero.getMatriz()[fila+contador_filas][columna]==color && contador_filas<-1){
                         contador_filas=-1;
+                        if(seleccion==1)return true;
                         while(tablero.getMatriz()[fila+contador_filas][columna]!=color){
-                            tablero.movimineto_en_tablero(fila+contador_filas,columna,jugador.getColor());
+                            tablero.movimineto_en_tablero(fila+contador_filas,columna,color);
                             contador_filas--;
                         }
                         return true;
+                    }
+                    if(tablero.getMatriz()[fila+contador_filas][columna]==' ' && contador_filas<-1){
+                        return false;
                     }
                     contador_filas--;
                 }
@@ -234,11 +247,15 @@ public:
                 while(columna+contador_columnas>=0){
                     if(tablero.getMatriz()[fila][columna+contador_columnas]==color && contador_columnas<-1){
                         contador_columnas=-1;
+                        if(seleccion==1)return true;
                         while(tablero.getMatriz()[fila][columna+contador_columnas]!=color){
-                            tablero.movimineto_en_tablero(fila,columna+contador_columnas,jugador.getColor());
+                            tablero.movimineto_en_tablero(fila,columna+contador_columnas,color);
                             contador_columnas--;
                         }
                         return true;
+                    }
+                    if(tablero.getMatriz()[fila][columna+contador_columnas]==' ' && contador_columnas<-1){
+                        return false;
                     }
                     contador_columnas--;
                 }
@@ -249,11 +266,15 @@ public:
                 while(columna+contador_columnas<8){
                     if(tablero.getMatriz()[fila][columna+contador_columnas]==color && contador_columnas>1){
                         contador_columnas=1;
+                        if(seleccion==1)return true;
                         while(tablero.getMatriz()[fila][columna+contador_columnas]!=color){
-                            tablero.movimineto_en_tablero(fila,columna+contador_columnas,jugador.getColor());
+                            tablero.movimineto_en_tablero(fila,columna+contador_columnas,color);
                             contador_columnas++;
                         }
                         return true;
+                    }
+                    if(tablero.getMatriz()[fila][columna+contador_columnas]==' ' && contador_columnas>1){
+                        return false;
                     }
                     contador_columnas++;
                 }
@@ -266,12 +287,16 @@ public:
                     if(tablero.getMatriz()[fila+contador_fila][columna+contador_columnas]==color && contador_columnas>1){
                         contador_columnas=1;
                         contador_fila=1;
+                        if(seleccion==1)return true;
                         while(tablero.getMatriz()[fila+contador_fila][columna+contador_columnas]!=color){
-                            tablero.movimineto_en_tablero(fila+contador_fila,columna+contador_columnas,jugador.getColor());
+                            tablero.movimineto_en_tablero(fila+contador_fila,columna+contador_columnas,color);
                             contador_columnas++;
                             contador_fila++;
                         }
                         return true;
+                    }
+                    if(tablero.getMatriz()[fila+contador_fila][columna+contador_columnas]==' ' && contador_columnas>1){
+                        return false;
                     }
                     contador_columnas++;
                     contador_fila++;
@@ -285,12 +310,16 @@ public:
                     if(tablero.getMatriz()[fila+contador_fila][columna+contador_columnas]==color && contador_fila>1){
                         contador_fila=1;
                         contador_columnas=-1;
+                        if(seleccion==1)return true;
                         while(tablero.getMatriz()[fila+contador_fila][columna+contador_columnas]!=color){
-                            tablero.movimineto_en_tablero(fila+contador_fila,columna+contador_columnas,jugador.getColor());
+                            tablero.movimineto_en_tablero(fila+contador_fila,columna+contador_columnas,color);
                             contador_fila++;
                             contador_columnas--;
                         }
                         return true;
+                    }
+                    if(tablero.getMatriz()[fila+contador_fila][columna+contador_columnas]==' ' && contador_fila>1){
+                        return false;
                     }
                     contador_fila++;
                     contador_columnas--;
@@ -304,12 +333,16 @@ public:
                     if(tablero.getMatriz()[fila+contador_fila][columna+contador_columnas]==color && contador_columnas>1){
                         contador_fila=-1;
                         contador_columnas=1;
+                        if(seleccion==1)return true;
                         while(tablero.getMatriz()[fila+contador_fila][columna+contador_columnas]!=color){
-                            tablero.movimineto_en_tablero(fila+contador_fila,columna+contador_columnas,jugador.getColor());
+                            tablero.movimineto_en_tablero(fila+contador_fila,columna+contador_columnas,color);
                             contador_fila--;
                             contador_columnas++;
                         }
                         return true;
+                    }
+                    if(tablero.getMatriz()[fila+contador_fila][columna+contador_columnas]==' ' && contador_columnas>1){
+                        return false;
                     }
                     contador_fila--;
                     contador_columnas++;
@@ -323,12 +356,16 @@ public:
                     if(tablero.getMatriz()[fila+contador_fila][columna+contador_columnas]==color && contador_columnas<-1){
                         contador_fila=-1;
                         contador_columnas=-1;
+                        if(seleccion==1)return true;
                         while(tablero.getMatriz()[fila+contador_fila][columna+contador_columnas]!=color){
-                            tablero.movimineto_en_tablero(fila+contador_fila,columna+contador_columnas,jugador.getColor());
+                            tablero.movimineto_en_tablero(fila+contador_fila,columna+contador_columnas,color);
                             contador_fila--;
                             contador_columnas--;
                         }
                         return true;
+                    }
+                    if(tablero.getMatriz()[fila+contador_fila][columna+contador_columnas]==' ' && contador_columnas<-1){
+                        return false;
                     }
                     contador_fila--;
                     contador_columnas--;
@@ -338,12 +375,46 @@ public:
         return false;
     }
 
+    bool verificacion_proxima_jugada(Jugador& jugador){
+        for(int i = 0; i < tablero.getFilas(); i++) {
+                for (int j = 0; j < tablero.getColumnas(); j++) {
+                    if(comprobar_jugada_valida(jugador,i,j,1)==true){
+                        return true;
+                    }
+                }
+        }
+        return false;
+    }
+
     void iniciar_partida(){
-        for(int fichas=0;fichas<=64;fichas++){
-            tablero.mostrar_tablero();
-            turno_del_jugador(jugador1);
-            tablero.mostrar_tablero();
-            turno_del_jugador(jugador2);
+        while(verificacion_proxima_jugada(jugador1)==true || verificacion_proxima_jugada(jugador2)==true){
+                tablero.mostrar_tablero();
+                if(verificacion_proxima_jugada(jugador1)==true){
+                    turno_del_jugador(jugador1);
+                }else{
+                    cout<<endl<<"!!!!!No es posible realizar ningun movimineto para el jugador "<<jugador1.getNombre()<<"!!!!!"<<endl<<endl;;
+                }
+                tablero.mostrar_tablero();
+                if(verificacion_proxima_jugada(jugador2)==true){
+                    turno_del_jugador(jugador2);
+                }else{
+                    cout<<endl<<"!!!!!No es posible realizar ningun movimineto para el jugador "<<jugador2.getNombre()<<"!!!!!"<<endl<<endl;
+                }
+
+        }
+        jugador1.setPuntaje(tablero.getMatriz());
+        jugador2.setPuntaje(tablero.getMatriz());
+        if(jugador1.getPuntaje()>jugador2.getPuntaje()){
+                tablero.mostrar_tablero();
+                cout<<"Fin del juego, gana el jugador "<<jugador1.getNombre()<<" con "<<jugador1.getPuntaje()<<" puntos"<<endl;
+        }
+        else if(jugador2.getPuntaje()>jugador1.getPuntaje()){
+                tablero.mostrar_tablero();
+                cout<<"Fin del juego, gana el jugador "<<jugador2.getNombre()<<" con "<<jugador2.getPuntaje()<<" puntos"<<endl;
+        }
+        else{
+                tablero.mostrar_tablero();
+                cout<<"Fin del juego, el juego termino en empate"<<endl;
         }
     }
 
