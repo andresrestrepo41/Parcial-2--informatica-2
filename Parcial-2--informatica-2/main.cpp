@@ -1,4 +1,6 @@
 #include <iostream>
+#include <fstream>
+#include <string>
 using namespace std;
 
 class Tablero{
@@ -9,7 +11,7 @@ private:
 
 public:
     void mostrar_tablero(){
-        cout<<"  A B C D E F G H"<<endl;
+        cout<<"\n\n  A B C D E F G H"<<endl;
         for(int i=0;i<8;i++){
             cout<<i+1;
             for (int j = 0; j < 8; j++){
@@ -116,7 +118,15 @@ private:
     Jugador jugador2;
     Tablero tablero;
 public:
-    Juego(){
+//    Juego(){
+//        string nombre_jugador1;
+//        string nombre_jugador2;
+//        cout<<"Ingrese nombre del jugador 1: ";getline(cin, nombre_jugador1);
+//        cout<<"Ingrese nombre del jugador 2: ";getline(cin, nombre_jugador2);
+//        jugador1.datos_usuario('-',nombre_jugador1);
+//        jugador2.datos_usuario('*',nombre_jugador2);
+//    }
+    void definir_datos_jugador(){
         string nombre_jugador1;
         string nombre_jugador2;
         cout<<"Ingrese nombre del jugador 1: ";getline(cin, nombre_jugador1);
@@ -128,7 +138,7 @@ public:
         int fila=0;
         char letra_columna='A';
         jugador.setPuntaje(tablero.getMatriz());
-        cout<<"Puntiacion del juegador: ";
+        cout<<"\nPuntiacion del juegador: ";
         cout<<jugador.getPuntaje();
         cout<<"\nTurno del jugador: "<<jugador.getNombre()<< " ,Ingrese las coordenadas (fila columna): ";
         cin>>fila>>letra_columna;
@@ -386,7 +396,61 @@ public:
         return false;
     }
 
+    void escribir_archivo(string name, string info){
+        fstream file;
+        file.open(name,ios::out | ios::app| ios::binary);
+        file << info;
+        file.close();
+    }
+    string leer_archivo(string name){
+        char caracter;
+        fstream file;
+        string data;
+        file.open(name,ios::in | ios::binary);
+        if(file.is_open()){
+                while(file.get(caracter)){
+                    data.push_back(caracter);
+                }
+        }
+        file.close();
+        return data;
+    }
+
+    void menu_principal(Juego& juego){
+        char opcion='8';
+        while (opcion!='3') {
+                cout << "\nBienvenido al juego Othello" <<endl <<endl;
+                cout << "Ingrese 1 si quiere jugar" <<endl;
+                cout << "Ingrese 2 si quiere ver el historial de partidas" << endl;
+                cout << "Ingrese 3 si quiere salir" << endl;
+
+                cout<<"\nEscriba su opcion: ";
+                cin >> opcion;
+
+                switch (opcion) {
+                case '1':
+                    cout << "Comenzando una nueva partida..."<<endl;
+                    cin.ignore();
+                    juego.definir_datos_jugador();
+                    juego.iniciar_partida();
+                    break;
+                case '2':
+                    cout << "Mostrando el historial de partidas..." << endl<<endl;
+                    cout<<leer_archivo("historial_de_partidas.txt");
+                    break;
+                case '3':
+                    cout << "Saliendo del juego. !Hasta luego!" << endl;
+                    break;
+                default:
+                    cout << "Opcion no valida. Por favor, ingrese una opcion valida." << endl;
+                    break;
+                }
+        }
+
+    }
+
     void iniciar_partida(){
+        string datos_partida;
         while(verificacion_proxima_jugada(jugador1)==true || verificacion_proxima_jugada(jugador2)==true){
                 tablero.mostrar_tablero();
                 if(verificacion_proxima_jugada(jugador1)==true){
@@ -407,23 +471,28 @@ public:
         if(jugador1.getPuntaje()>jugador2.getPuntaje()){
                 tablero.mostrar_tablero();
                 cout<<"Fin del juego, gana el jugador "<<jugador1.getNombre()<<" con "<<jugador1.getPuntaje()<<" puntos"<<endl;
+                datos_partida="-Jugador ganador: "+jugador1.getNombre()+" con "+to_string(jugador1.getPuntaje())+" puntos jugo contra: "+jugador2.getNombre() +" que perdio con "+to_string(jugador2.getPuntaje())+" puntos, el dia ----"+"\n";
+
         }
         else if(jugador2.getPuntaje()>jugador1.getPuntaje()){
                 tablero.mostrar_tablero();
                 cout<<"Fin del juego, gana el jugador "<<jugador2.getNombre()<<" con "<<jugador2.getPuntaje()<<" puntos"<<endl;
+                datos_partida="-Jugador ganador: "+jugador2.getNombre()+" con "+to_string(jugador2.getPuntaje())+" puntos jugo contra: "+jugador1.getNombre()+" que perdio con "+to_string(jugador2.getPuntaje())+" puntos, el dia ----"+"\n";
         }
         else{
                 tablero.mostrar_tablero();
                 cout<<"Fin del juego, el juego termino en empate"<<endl;
+                datos_partida="-El juego termino en empate, entre el jugador: "+jugador1.getNombre()+" y el jugador: "+jugador2.getNombre()+" ambos con "+to_string(jugador1.getPuntaje())+" puntos, el dia ------"+"\n";
         }
+
+        escribir_archivo("historial_de_partidas.txt",datos_partida);
     }
+
 
 };
 
 int main()
 {
     Juego juego;
-    juego.iniciar_partida();
-
-
+    juego.menu_principal(juego);
 }
