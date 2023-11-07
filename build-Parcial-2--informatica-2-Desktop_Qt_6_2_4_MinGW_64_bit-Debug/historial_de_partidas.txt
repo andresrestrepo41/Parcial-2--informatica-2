@@ -1,0 +1,3 @@
+-Jugador ganador: Negras con 4 puntos jugo contra: Blancas que perdio con 3 puntos, en la fecha :11-06-2023 14:27:20
+-El juego termino en empate, entre el jugador: dsdsddd y el jugador: gggggg ambos con 2 puntos, en la fecha :11-06-2023 21:20:45
+-Jugador ganador: Negras con 39 puntos jugo contra: Blancas que perdio con 25 puntos, en la fecha :11-06-2023 23:31:22
